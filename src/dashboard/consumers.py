@@ -5,6 +5,11 @@ from studio.models import Studio
 import json
 
 
+@sync_to_async
+def get_studio(slug):
+    return Studio.objects.get(slug=slug)
+
+
 class DashboardConsumer(AsyncWebsocketConsumer):
     async def connect(self):
         self.group_name = "dashboard"
@@ -34,11 +39,6 @@ class DashboardConsumer(AsyncWebsocketConsumer):
 
     async def broadcast_message(self, event):
         await self.send(text_data=json.dumps({"message": event["message"]}))
-
-
-@sync_to_async
-def get_studio(slug):
-    return Studio.objects.get(slug=slug)
 
 
 class StudioConsumer(AsyncWebsocketConsumer):

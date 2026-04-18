@@ -30,7 +30,7 @@
     <div class="row">
         {% for studio in studios %}
             <div class="col-sm-6 p-0 p-md-3">
-                <div class="p-3 p-md-4 m-2 text-white rounded shadow-sm">
+                <div class="p-3 p-md-4 m-2 text-white rounded border shadow-sm">
                     <h3>{{ studio }}</h3>
                     <span data-unit="{{ studio.slug }}"
                         class="power-status badge mt-3 p-2 fw-bold {{ studio.power|yesno:'bg-danger, bg-secondary' }}">
@@ -96,46 +96,47 @@
                         </thead>
                         <tbody id="log-table-body">
                             {% for log in logs %}
-                            <tr class="{% if log.level == 'danger' %}table-danger{% endif %}">
-                                <td class="px-3">
-                                    <span class="d-none d-md-inline">
-                                        {{ log.timestamp|date:"D M jS, " }}
-                                    </span>
-                                    <span class="fw-normal">
-                                        {{ log.timestamp|date:"H:i:s" }}
-                                    </span>
-                                </td>
-                                <td class="px-3">{{ log.studio.name }}</td>
-                                <td class="px-3">
-                                    <span class="{% if log.power %}text-danger fw-bold{% endif %}">
-                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4">
-                                            <path d="M18.36 6.64a9 9 0 1 1-12.73 0"></path>
-                                            <line x1="12" y1="2" x2="12" y2="12"></line>
-                                        </svg>
-                                    </span>
-                                </td>
-                                <td class="px-3">
-                                    <span class="{% if log.mic %}text-danger fw-bold{% endif %}">
-                                        {{ log.mic|yesno:"🟢,⚪" }}
-                                    </span>
-                                </td>
-                                <td class="px-3">
-                                    <span class="{% if log.record %}text-danger fw-bold{% endif %}">
-                                        {{ log.record|yesno:"🔴,⚪" }}
-                                    </span>
-                                </td>
-                                <td class="px-3">
-                                    {% if log.on_air %}
-                                        {% for station in log.on_air %}
-                                            <span class="badge p-2 bg-warning text-dark">
-                                                {{ station|upper }}
-                                            </span>
-                                        {% endfor %}
-                                    {% else %}
-                                        <span class="badge p-2 bg-secondary">OFF AIR</span>
-                                    {% endif %}
-                                </td>
-                            </tr>
+                                <tr class="log-row {% if log.level == 'danger' %}table-danger{% endif %}" 
+                                    data-studio="{{ log.studio.slug }}" data-states="{{ log.css_states }}">
+                                    <td class="px-3">
+                                        <span class="d-none d-md-inline">
+                                            {{ log.timestamp|date:"D M jS, " }}
+                                        </span>
+                                        <span class="fw-normal">
+                                            {{ log.timestamp|date:"H:i:s" }}
+                                        </span>
+                                    </td>
+                                    <td class="px-3">{{ log.studio.name }}</td>
+                                    <td class="px-3">
+                                        <span class="{% if log.power %}text-danger fw-bold{% endif %}">
+                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4">
+                                                <path d="M18.36 6.64a9 9 0 1 1-12.73 0"></path>
+                                                <line x1="12" y1="2" x2="12" y2="12"></line>
+                                            </svg>
+                                        </span>
+                                    </td>
+                                    <td class="px-3">
+                                        <span class="{% if log.mic %}text-danger fw-bold{% endif %}">
+                                            {{ log.mic|yesno:"🟢,⚪" }}
+                                        </span>
+                                    </td>
+                                    <td class="px-3">
+                                        <span class="{% if log.record %}text-danger fw-bold{% endif %}">
+                                            {{ log.record|yesno:"🔴,⚪" }}
+                                        </span>
+                                    </td>
+                                    <td class="px-3">
+                                        {% if log.on_air %}
+                                            {% for station in log.on_air %}
+                                                <span class="badge p-2 bg-warning text-dark">
+                                                    {{ station|upper }}
+                                                </span>
+                                            {% endfor %}
+                                        {% else %}
+                                            <span class="badge p-2 bg-secondary">OFF AIR</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
                             {% endfor %}
                         </tbody>
                     </table>

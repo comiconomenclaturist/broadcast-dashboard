@@ -74,3 +74,17 @@ class StudioLog(models.Model):
                 },
             },
         )
+
+    @property
+    def css_states(self):
+        """Returns a space-separated string of active states for frontend filtering."""
+        states = []
+        if self.power:
+            states.append("power")
+        if self.mic:
+            states.append("mic")
+        if self.record:
+            states.append("record")
+        if self.on_air:
+            states.append("on_air")
+        return " ".join(states)

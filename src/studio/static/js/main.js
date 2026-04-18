@@ -1,3 +1,27 @@
+const filters = {
+    studio: 'all',
+    state: 'all'
+};
+function applyFilters() {
+    const studioFilter = filters['studio'] || 'all';
+    const stateFilter = filters['state'] || 'all';
+
+    document.querySelectorAll(".log-row").forEach(row => {
+        const rowStudio = row.dataset.studio;
+        const rowStates = row.dataset.states.split(' ');
+
+        const matchesStudio = (studioFilter === 'all' || rowStudio === studioFilter);
+        // Match if state is 'all' OR if the specific state key exists in this row's data
+        const matchesState = (stateFilter === 'all' || rowStates.includes(stateFilter));
+
+        if (matchesStudio && matchesState) {
+            row.classList.remove('d-none');
+        } else {
+            row.classList.add('d-none');
+        }
+    });
+}
+
 const chatSocket = new WebSocket('ws://' + window.location.host + '/ws/dashboard/');
 
 chatSocket.onopen = function (e) {
@@ -6,7 +30,6 @@ chatSocket.onopen = function (e) {
 
 chatSocket.onmessage = function (e) {
     const data = JSON.parse(e.data);
-
 
     // --- Update Studio UI Badges ---
     const updateStatus = (selector, isOn, activeClass) => {
@@ -65,6 +88,7 @@ chatSocket.onmessage = function (e) {
     let power = `<span class="${msg.power ? 'text-danger' : ''}">${svg}</span>`;
     let mic = `<span class="${msg.mic ? 'text-danger' : ''}">${msg.mic ? '🟢' : '⚪'}</span>`;
     let record = `<span class="${msg.record ? 'text-danger' : ''}">${msg.record ? '🔴' : '⚪'}</span>`;
+    let activity = "";
 
     // --- Build the station badges for the log row
     if (msg.on_air && msg.on_air.length > 0) {
@@ -76,8 +100,28 @@ chatSocket.onmessage = function (e) {
         activity = `<span class="badge p-2 bg-secondary">OFF AIR</span>`;
     }
 
+    // Filtering
+    const activeStates = [];
+    if (msg.power === true) activeStates.push('power');
+    if (msg.mic === true) activeStates.push('mic');
+    if (msg.record === true) activeStates.push('record');
+
+    if (msg.on_air && msg.on_air.length > 0) {
+        activeStates.push('on_air');
+    }
+
+    const studioFilter = filters.studio || 'all';
+    const stateFilter = filters.state || 'all';
+
+    const matchesStudio = (studioFilter === 'all' || data.slug === studioFilter);
+    const matchesState = (stateFilter === 'all' || activeStates.includes(stateFilter));
+
+    const visibilityClass = (matchesStudio && matchesState) ? "" : "d-none";
+
     const row = `
-        <tr class="${data.level === 'danger' ? 'table-danger' : ''}">
+        <tr class="log-row ${data.level === 'danger' ? 'table-danger' : ''}" 
+            data-studio="${data.slug}" 
+            data-states="${activeStates.join(' ')}">
             <td class="px-3">${time}</td>
             <td class="px-3">${data.name}</td>
             <td class="px-3">${power}</td>
@@ -93,12 +137,40 @@ chatSocket.onmessage = function (e) {
             tbody.deleteRow(-1);
         }
     }
+    applyFilters();
 };
 
-chatSocket.send(JSON.stringify({
-    type: "filter",
-    studio: "studio-1"
-}));
+document.querySelectorAll(".filter-badge").forEach(item => {
+    item.addEventListener("click", function (e) {
+        e.preventDefault();
+
+        const type = this.dataset.type;
+        const value = this.dataset.value;
+
+        if (this.classList.contains('active') && value !== 'all') {
+            filters[type] = 'all';
+            this.classList.remove("active");
+
+            const allButton = document.querySelector(`.filter-badge[data-type="${type}"][data-value="all"]`);
+            if (allButton) {
+                allButton.classList.add("active");
+            }
+        }
+        else {
+            filters[type] = value;
+
+            if (value === 'all') {
+                document.querySelectorAll(`.filter-badge[data-type="${type}"]`).forEach(i => i.classList.remove("active"));
+            } else {
+                document.querySelectorAll(`.filter-badge[data-type="${type}"]`).forEach(i => i.classList.remove("active"));
+            }
+
+            this.classList.add("active");
+        }
+
+        applyFilters();
+    });
+});
 
 document.getElementById('addUserForm').onsubmit = async (e) => {
     e.preventDefault();
