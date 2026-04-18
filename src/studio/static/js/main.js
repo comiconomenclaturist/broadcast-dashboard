@@ -94,6 +94,12 @@ chatSocket.onmessage = function (e) {
         }
     }
 };
+
+chatSocket.send(JSON.stringify({
+    type: "filter",
+    studio: "studio-1"
+}));
+
 document.getElementById('addUserForm').onsubmit = async (e) => {
     e.preventDefault();
     const form = e.target;
