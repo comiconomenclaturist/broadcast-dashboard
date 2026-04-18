@@ -1,0 +1,173 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/index.css' %}">
+{% endblock %}
+
+{% block menu %}
+<div class="dropdown">
+    <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown">
+        Menu <span class="caret"></span>
+    </button>
+    <ul class="dropdown-menu dropdown-menu-end dropdown-menu-dark bg-primary border-0">
+        <li>
+            <button type="button" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#addUserModal">
+                Add User
+            </button>
+        </li>
+        <li>
+            <form action="{% url 'logout' %}" method="post" class="m-0">
+                {% csrf_token %}
+                <button type="submit" class="dropdown-item">Log Out</button>
+            </form>
+        </li>
+    </ul>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-2">
+    <div class="row">
+        {% for studio in studios %}
+            <div class="col-sm-6 p-0 p-md-3">
+                <div class="p-3 p-md-4 m-2 text-white rounded border shadow-sm">
+                    <h3>{{ studio }}</h3>
+                    <span data-unit="{{ studio.slug }}"
+                        class="power-status badge mt-3 p-2 fw-bold {{ studio.power|yesno:'bg-danger, bg-secondary' }}">
+                        POWER
+                    </span>
+                    <span data-unit="{{ studio.slug }}"
+                        class="mic-status badge mt-3 p-2 {{ studio.mic|yesno:'bg-success, bg-secondary' }}">
+                        MIC
+                    </span>
+                    <span data-unit="{{ studio.slug }}"
+                        class="record-status badge mt-3 p-2 {{ studio.record|yesno:'bg-danger,bg-secondary' }}">
+                        RECORD
+                    </span>
+                    <span id="{{ studio.slug }}-on-air">
+                        {% if studio.stations.all %}
+                            {% for station in studio.stations.all %}
+                                <span class="badge mt-3 p-2 bg-warning text-dark">{{ station.name|upper }}</span>
+                            {% endfor %}
+                        {% else %}
+                            <span class="badge mt-3 p-2 bg-secondary">OFF AIR</span>
+                        {% endif %}
+                    </span>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+    <div class="row">
+        <div class="col-sm-12 p-2 p-md-4">
+            <div class="card shadow-sm">
+                <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center"
+                    style="background-color: rgb(0, 47, 167) !important;">
+                    <h5 class="mb-0">Activity Log</h5>
+                    <span class="badge rounded-pill bg-primary" id="log-count">Live</span>
+                </div>
+                <div class="card-body p-0 table-responsive position-relative" style="max-height: 400px; overflow-y: auto;">
+                    <table class="table table-hover mb-0">
+                        <thead class="sticky-top">
+                            <tr>
+                                <th class="px-3">Time</th>
+                                <th class="px-3">Studio</th>
+                                <th class="px-3">Power</th>
+                                <th class="px-3">Mic</th>
+                                <th class="px-3">Record</th>
+                                <th class="px-3">On Air</th>
+                            </tr>
+                        </thead>
+                        <tbody id="log-table-body">
+                            {% for log in logs %}
+                            <tr class="{% if log.level == 'danger' %}table-danger{% endif %}">
+                                <td class="px-3">
+                                    <span class="d-none d-md-inline">
+                                        {{ log.timestamp|date:"D M jS, " }}
+                                    </span>
+                                    <span class="fw-normal">
+                                        {{ log.timestamp|date:"H:i:s" }}
+                                    </span>
+                                </td>
+                                <td class="px-3">{{ log.studio.name }}</td>
+                                <td class="px-3">
+                                    <span class="{% if log.power %}text-danger fw-bold{% endif %}">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4">
+                                            <path d="M18.36 6.64a9 9 0 1 1-12.73 0"></path>
+                                            <line x1="12" y1="2" x2="12" y2="12"></line>
+                                        </svg>
+                                    </span>
+                                </td>
+                                <td class="px-3">
+                                    <span class="{% if log.mic %}text-danger fw-bold{% endif %}">
+                                        {{ log.mic|yesno:"🟢,⚪" }}
+                                    </span>
+                                </td>
+                                <td class="px-3">
+                                    <span class="{% if log.record %}text-danger fw-bold{% endif %}">
+                                        {{ log.record|yesno:"🔴,⚪" }}
+                                    </span>
+                                </td>
+                                <td class="px-3">
+                                    {% if log.on_air %}
+                                        {% for station in log.on_air %}
+                                            <span class="badge p-2 bg-warning text-dark">
+                                                {{ station|upper }}
+                                            </span>
+                                        {% endfor %}
+                                    {% else %}
+                                        <span class="badge p-2 bg-secondary">OFF AIR</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    <div class="fade-bottom"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="addUserModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form id="addUserForm">
+                {% csrf_token %}
+                <div class="modal-header">
+                    <h5 class="modal-title">Add User</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label>Email</label>
+                        <input type="email" name="email" class="form-control" id="id_email">
+                        <div class="invalid-feedback" id="error_email"></div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label>Password</label>
+                        <input type="password" name="password" class="form-control" id="id_password">
+                        <div class="invalid-feedback" id="error_password"></div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-success">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="toast-container position-fixed bottom-0 end-0 p-3">
+    <div id="successToast" class="toast align-items-center text-white bg-success border-0" role="alert">
+        <div class="d-flex">
+            <div class="toast-body">User created successfully!</div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+        </div>
+    </div>
+</div>
+
+<script src="{% static 'js/main.js' %}"></script>
+{% endblock %}

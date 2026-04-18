@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}{{ site.name }}{% endblock %}</title>
+    {% load bootstrap5 %}
+    {% bootstrap_css %}
+    {% bootstrap_javascript %}
+    {% block extra_css %}{% endblock %}
+</head>
+
+<body>
+    <div class="container-fluid mt-2">
+        <div class="row" style="background: #002FA7;">
+            <div class="col-9 col-md-9 p-4 p-md-5 text-white rounded">
+                <h1 class="fs-1 fs-md-1 fw-bold">{{ request.site.name }}<h1>
+                <h1 class="fs-6 fs-md-6">Dashboard for displaying the status of the studios</h1>
+            </div>
+            <div class="col-3 col-md-3 p-4 p-md-5 d-flex justify-content-end">
+                {% block menu %}
+                {% endblock %}
+            </div>
+        </div>
+    </div>
+    {% block content %}
+    {% endblock %}
+</body>
+
+</html>
