@@ -24,25 +24,35 @@ function applyFilters() {
 
 const chatSocket = new WebSocket('ws://' + window.location.host + '/ws/dashboard/');
 
-chatSocket.onopen = function (e) {
+    chatSocket.onopen = function (e) {
     console.log("Connected to the server");
 };
 
 chatSocket.onmessage = function (e) {
     const data = JSON.parse(e.data);
 
-    // --- Update Studio UI Badges ---
-    const updateStatus = (selector, isOn, activeClass) => {
-        const el = document.querySelector(`[data-unit="${data.slug}"].${selector}`);
-        if (el && isOn !== undefined) {
-            el.classList.toggle(activeClass, isOn);
-            el.classList.toggle('bg-secondary', !isOn);
+    const updateBadge = (studioSlug, type, isOn) => {
+        const studioEl = document.querySelector(`[data-unit="${studioSlug}"]`);
+        if (!studioEl) return;
+
+        const badge = studioEl.querySelector(`[data-type="${type}"]`);
+        if (badge) {
+            const activeClass = (type === 'mic') ? 'bg-success' : 'bg-danger';
+            
+            badge.classList.toggle(activeClass, isOn);
+            badge.classList.toggle('bg-secondary', !isOn);
+            
+            badge.style.opacity = "1";
+            badge.classList.remove("pe-none");
         }
     };
 
-    updateStatus('power-status', data.power, 'bg-danger');
-    updateStatus('mic-status', data.mic, 'bg-success');
-    updateStatus('record-status', data.record, 'bg-danger');
+    // --- Update Studio UI Badges ---
+    ['power', 'mic', 'record'].forEach(key => {
+        if (data[key] !== undefined) {
+            updateBadge(data.slug, key, data[key]);
+        }
+    });
 
     // --- Update Studio "On Air" Stations ---
     const container = document.getElementById(`${data.slug}-on-air`);
@@ -169,6 +179,31 @@ document.querySelectorAll(".filter-badge").forEach(item => {
         }
 
         applyFilters();
+    });
+});
+
+document.querySelectorAll('.cmd-btn').forEach(badge => {
+    badge.addEventListener('click', function() {
+        const parent = this.closest('[data-unit]');
+        const studioSlug = parent.dataset.unit;
+        const commandType = this.dataset.type;
+        const stationName = this.dataset.value;
+        
+        const isActive = !this.classList.contains('bg-secondary')
+
+        let payload = { "slug": studioSlug };
+
+        if (commandType === 'on-air') {
+            payload[commandType] = stationName;
+        } else {
+            payload[commandType] = !isActive;
+        }
+        this.style.opacity = "0.5";
+        this.classList.add("pe-none");
+
+        if (chatSocket.readyState === WebSocket.OPEN) {
+            chatSocket.send(JSON.stringify(payload));
+        }
     });
 });
 

@@ -57,3 +57,7 @@ table thead {
 .shadow-sm {
     background: #343a40;
 }
+
+.cmd-btn {
+    cursor: pointer;
+}

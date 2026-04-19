@@ -21,20 +21,10 @@ class DashboardConsumer(AsyncWebsocketConsumer):
 
     async def receive(self, text_data):
         data = json.loads(text_data)
+        slug = data.get("slug")
 
         await self.channel_layer.group_send(
-            "dashboard",
-            {
-                "type": "state_update",
-                "message": {
-                    "slug": self.studio.slug,
-                    "name": self.studio.name,
-                    "power": data.get("power"),
-                    "mic": data.get("mic"),
-                    "record": data.get("record"),
-                    "on_air": data.get("on_air", []),
-                },
-            },
+            f"studio_{slug}", {"type": "device_command", "message": data}
         )
 
     async def broadcast_message(self, event):

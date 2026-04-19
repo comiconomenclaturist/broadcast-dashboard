@@ -29,28 +29,30 @@
 <div class="container-fluid mt-2">
     <div class="row">
         {% for studio in studios %}
-            <div class="col-sm-6 p-0 p-md-3">
+            <div class="col-sm-6 p-0 p-md-3" data-unit="{{ studio.slug }}">
                 <div class="p-3 p-md-4 m-2 text-white rounded shadow-sm">
                     <h3>{{ studio }}</h3>
-                    <span data-unit="{{ studio.slug }}"
-                        class="power-status badge mt-3 p-2 fw-bold {{ studio.power|yesno:'bg-danger, bg-secondary' }}">
+                    <span data-type="power"
+                        class="cmd-btn badge mt-3 p-2 fw-bold {{ studio.power|yesno:'bg-danger, bg-secondary' }}">
                         POWER
                     </span>
-                    <span data-unit="{{ studio.slug }}"
-                        class="mic-status badge mt-3 p-2 {{ studio.mic|yesno:'bg-success, bg-secondary' }}">
+                    <span data-type="mic"
+                        class="badge mt-3 p-2 {{ studio.mic|yesno:'bg-success, bg-secondary' }}">
                         MIC
                     </span>
-                    <span data-unit="{{ studio.slug }}"
-                        class="record-status badge mt-3 p-2 {{ studio.record|yesno:'bg-danger,bg-secondary' }}">
+                    <span data-type="record"
+                        class="cmd-btn badge mt-3 p-2 {{ studio.record|yesno:'bg-danger,bg-secondary' }}">
                         RECORD
                     </span>
                     <span id="{{ studio.slug }}-on-air">
                         {% if studio.stations.all %}
                             {% for station in studio.stations.all %}
-                                <span class="badge mt-3 p-2 bg-warning text-dark">{{ station.name|upper }}</span>
+                                <span class="cmd-btn badge mt-3 p-2 bg-warning text-dark" data-type="on-air" data-value="{{ station.slug }}">
+                                    {{ station.name|upper }}
+                                </span>
                             {% endfor %}
                         {% else %}
-                            <span class="badge mt-3 p-2 bg-secondary">OFF AIR</span>
+                            <span class="badge cmd-btn mt-3 p-2 bg-secondary">OFF AIR</span>
                         {% endif %}
                     </span>
                 </div>
