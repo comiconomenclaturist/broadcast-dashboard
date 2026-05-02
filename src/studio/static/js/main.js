@@ -2,17 +2,17 @@ const filters = {
     studio: 'all',
     state: 'all'
 };
+
 function applyFilters() {
     const studioFilter = filters['studio'] || 'all';
     const stateFilter = filters['state'] || 'all';
 
     document.querySelectorAll(".log-row").forEach(row => {
         const rowStudio = row.dataset.studio;
-        const rowStates = row.dataset.states.split(' ');
+        const rowType = row.dataset.type;
 
         const matchesStudio = (studioFilter === 'all' || rowStudio === studioFilter);
-        // Match if state is 'all' OR if the specific state key exists in this row's data
-        const matchesState = (stateFilter === 'all' || rowStates.includes(stateFilter));
+        const matchesState = (stateFilter === 'all' || rowType === stateFilter);
 
         if (matchesStudio && matchesState) {
             row.classList.remove('d-none');
@@ -24,7 +24,7 @@ function applyFilters() {
 
 const chatSocket = new WebSocket('ws://' + window.location.host + '/ws/dashboard/');
 
-    chatSocket.onopen = function (e) {
+chatSocket.onopen = function (e) {
     console.log("Connected to the server");
 };
 
@@ -38,10 +38,10 @@ chatSocket.onmessage = function (e) {
         const badge = studioEl.querySelector(`[data-type="${type}"]`);
         if (badge) {
             const activeClass = (type === 'mic') ? 'bg-success' : 'bg-danger';
-            
+
             badge.classList.toggle(activeClass, isOn);
             badge.classList.toggle('bg-secondary', !isOn);
-            
+
             badge.style.opacity = "1";
             badge.classList.remove("pe-none");
         }
@@ -88,63 +88,40 @@ chatSocket.onmessage = function (e) {
     const datePart = `${dayName} ${monthName} ${dayNum}${getOrdinal(dayNum)}`;
     const msg = data;
 
-    const svg = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4">
-                    <path d="M18.36 6.64a9 9 0 1 1-12.73 0"></path>
-                    <line x1="12" y1="2" x2="12" y2="12"></line>
-                </svg>`
-
-    // --- Build the activity string with status icons ---
     let time = `<span class="d-none d-md-inline">${datePart}, </span><span class="fw-md-normal">${timePart}</span>`
-    let power = `<span class="${msg.power ? 'text-danger' : ''}">${svg}</span>`;
-    let mic = `<span class="${msg.mic ? 'text-danger' : ''}">${msg.mic ? '🟢' : '⚪'}</span>`;
-    let record = `<span class="${msg.record ? 'text-danger' : ''}">${msg.record ? '🔴' : '⚪'}</span>`;
-    let activity = "";
+    const loggableKeys = ['power', 'mic', 'record', 'on_air'];
+    const activeKey = loggableKeys.find(key => data[key] !== undefined);
 
-    // --- Build the station badges for the log row
-    if (msg.on_air && msg.on_air.length > 0) {
-        const stationBadges = msg.on_air.map(st =>
-            `<span class="badge p-2 bg-warning text-dark">${st.toUpperCase()}</span>`
-        ).join(' ');
-        activity = stationBadges;
-    } else {
-        activity = `<span class="badge p-2 bg-secondary">OFF AIR</span>`;
-    }
+    if (activeKey) {
+        let eventHtml = "";
+        const value = data[activeKey];
 
-    // Filtering
-    const activeStates = [];
-    if (msg.power === true) activeStates.push('power');
-    if (msg.mic === true) activeStates.push('mic');
-    if (msg.record === true) activeStates.push('record');
+        if (activeKey === 'power') {
+            eventHtml = `<span class="badge p-2 ${value ? 'bg-danger' : 'bg-secondary text-dark'}">POWER</span>`;
+        } else if (activeKey === 'mic') {
+            eventHtml = `<span class="badge p-2 ${value ? 'bg-success' : 'bg-secondary text-dark'}">MIC</span>`;
+        } else if (activeKey === 'record') {
+            eventHtml = `<span class="badge p-2 ${value ? 'bg-danger' : 'bg-secondary text-dark'}">RECORD</span>`;
+        } else if (activeKey === 'on_air') {
+            if (value && value.length > 0) {
+                eventHtml = value.map(st => `<span class="badge p-2 bg-warning text-dark">${st.toUpperCase()}</span>`).join(' ');
+            } else {
+                eventHtml = `<span class="badge p-2 bg-secondary text-dark">OFF AIR</span>`;
+            }
+        }
 
-    if (msg.on_air && msg.on_air.length > 0) {
-        activeStates.push('on_air');
-    }
+        const row = `
+            <tr class="log-row ${data.level === 'danger' ? 'table-danger' : ''}" 
+                data-studio="${data.slug}" data-type="${activeKey}">
+                <td class="px-3"><span class="text-muted d-none d-md-inline">${datePart}, </span>${timePart}</td>
+                <td class="px-3">${data.name}</td>
+                <td class="px-3">${eventHtml}</td>
+            </tr>`;
 
-    const studioFilter = filters.studio || 'all';
-    const stateFilter = filters.state || 'all';
-
-    const matchesStudio = (studioFilter === 'all' || data.slug === studioFilter);
-    const matchesState = (stateFilter === 'all' || activeStates.includes(stateFilter));
-
-    const visibilityClass = (matchesStudio && matchesState) ? "" : "d-none";
-
-    const row = `
-        <tr class="log-row ${data.level === 'danger' ? 'table-danger' : ''}" 
-            data-studio="${data.slug}" 
-            data-states="${activeStates.join(' ')}">
-            <td class="px-3">${time}</td>
-            <td class="px-3">${data.name}</td>
-            <td class="px-3">${power}</td>
-            <td class="px-3">${mic}</td>
-            <td class="px-3">${record}</td>
-            <td class="px-3">${activity}</td>
-        </tr>`;
-
-    const tbody = document.getElementById('log-table-body');
-    if (tbody) {
-        tbody.insertAdjacentHTML('afterbegin', row);
-        if (tbody.rows.length > 50) {
-            tbody.deleteRow(-1);
+        const tbody = document.getElementById('log-table-body');
+        if (tbody) {
+            tbody.insertAdjacentHTML('afterbegin', row);
+            if (tbody.rows.length > 50) tbody.deleteRow(-1);
         }
     }
     applyFilters();
@@ -177,18 +154,17 @@ document.querySelectorAll(".filter-badge").forEach(item => {
 
             this.classList.add("active");
         }
-
         applyFilters();
     });
 });
 
 document.querySelectorAll('.cmd-btn').forEach(badge => {
-    badge.addEventListener('click', function() {
+    badge.addEventListener('click', function () {
         const parent = this.closest('[data-unit]');
         const studioSlug = parent.dataset.unit;
         const commandType = this.dataset.type;
         const stationName = this.dataset.value;
-        
+
         const isActive = !this.classList.contains('bg-secondary')
 
         let payload = { "slug": studioSlug };

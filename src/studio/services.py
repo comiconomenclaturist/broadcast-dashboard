@@ -1,7 +1,7 @@
 from .models import StudioLog, Station
 
 
-def update_studio_state(studio, data, on_air):
+def update_studio_state(studio, data):
     if "power" in data:
         studio.power = bool(data["power"])
 
@@ -11,10 +11,10 @@ def update_studio_state(studio, data, on_air):
     if "record" in data:
         studio.record = bool(data["record"])
 
-    if on_air is not None:
+    if "on_air" in data:
         studio.stations.clear()
 
-        for name in on_air:
+        for name in data["on_air"]:
             try:
                 station = Station.objects.get(name__iexact=name)
                 station.studio = studio
@@ -25,6 +25,6 @@ def update_studio_state(studio, data, on_air):
     studio.save()
     studio.refresh_from_db()
 
-    StudioLog.log_event(studio, data, on_air_list=on_air, level="info")
+    StudioLog.log_event(studio, data, level="info")
 
     return studio

@@ -90,16 +90,13 @@
                             <tr>
                                 <th class="px-3">Time</th>
                                 <th class="px-3">Studio</th>
-                                <th class="px-3">Power</th>
-                                <th class="px-3">Mic</th>
-                                <th class="px-3">Record</th>
-                                <th class="px-3">On Air</th>
+                                <th class="px-3">Event</th>
                             </tr>
                         </thead>
                         <tbody id="log-table-body" class="border-1">
                             {% for log in logs %}
                                 <tr class="log-row {% if log.level == 'danger' %}table-danger{% endif %}" 
-                                    data-studio="{{ log.studio.slug }}" data-states="{{ log.css_states }}">
+                                    data-studio="{{ log.studio.slug }}" data-type="{{ log.event_type }}">
                                     <td class="px-3">
                                         <span class="d-none d-md-inline">
                                             {{ log.timestamp|date:"D M jS, " }}
@@ -110,32 +107,26 @@
                                     </td>
                                     <td class="px-3">{{ log.studio.name }}</td>
                                     <td class="px-3">
-                                        <span class="{% if log.power %}text-danger fw-bold{% endif %}">
-                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4">
-                                                <path d="M18.36 6.64a9 9 0 1 1-12.73 0"></path>
-                                                <line x1="12" y1="2" x2="12" y2="12"></line>
-                                            </svg>
-                                        </span>
-                                    </td>
-                                    <td class="px-3">
-                                        <span class="{% if log.mic %}text-danger fw-bold{% endif %}">
-                                            {{ log.mic|yesno:"🟢,⚪" }}
-                                        </span>
-                                    </td>
-                                    <td class="px-3">
-                                        <span class="{% if log.record %}text-danger fw-bold{% endif %}">
-                                            {{ log.record|yesno:"🔴,⚪" }}
-                                        </span>
-                                    </td>
-                                    <td class="px-3">
-                                        {% if log.on_air %}
-                                            {% for station in log.on_air %}
+                                        {% if log.event_type == 'power' %}
+                                            <span class="badge p-2 {{ log.value|yesno:'bg-danger, bg-secondary text-dark' }}">
+                                                POWER
+                                            </span>
+                                        {% elif log.event_type == 'mic' %}
+                                            <span class="badge p-2 {{ log.value|yesno:'bg-success, bg-secondary text-dark' }}">
+                                                MIC
+                                            </span>
+                                        {% elif log.event_type == 'record' %}
+                                            <span class="badge p-2 {{ log.value|yesno:'bg-danger, bg-secondary text-dark' }}">
+                                                RECORD
+                                            </span>
+                                        {% elif log.event_type == 'on_air' %}
+                                            {% for station in log.value %}
                                                 <span class="badge p-2 bg-warning text-dark">
                                                     {{ station|upper }}
                                                 </span>
+                                                {% empty %}
+                                                <span class="badge p-2 bg-secondary text-dark">OFF AIR</span>
                                             {% endfor %}
-                                        {% else %}
-                                            <span class="badge p-2 bg-secondary">OFF AIR</span>
                                         {% endif %}
                                     </td>
                                 </tr>

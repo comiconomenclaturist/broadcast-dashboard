@@ -18,9 +18,7 @@ application = ProtocolTypeRouter(
                     # UI dashboard updates
                     path("ws/dashboard/", DashboardConsumer.as_asgi()),
                     # Studio devices
-                    re_path(
-                        r"ws/studio/(?P<studio_name>[\w-]+)/$", StudioConsumer.as_asgi()
-                    ),
+                    re_path(r"ws/studio/(?P<slug>[\w-]+)/$", StudioConsumer.as_asgi()),
                 ]
             )
         ),

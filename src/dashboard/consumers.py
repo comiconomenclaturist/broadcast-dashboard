@@ -24,7 +24,7 @@ class DashboardConsumer(AsyncWebsocketConsumer):
         slug = data.get("slug")
 
         await self.channel_layer.group_send(
-            f"studio_{slug}", {"type": "device_command", "message": data}
+            slug, {"type": "device_command", "message": data}
         )
 
     async def broadcast_message(self, event):
@@ -35,9 +35,9 @@ class StudioConsumer(AsyncWebsocketConsumer):
     ALLOWED_COMMANDS = {"on_air", "record", "power"}
 
     async def connect(self):
-        self.studio_slug = self.scope["url_route"]["kwargs"]["studio_name"]
-        self.studio = await get_studio(self.studio_slug)
-        self.group_name = f"studio_{self.studio_slug}"
+        self.slug = self.scope["url_route"]["kwargs"]["slug"]
+        self.studio = await get_studio(self.slug)
+        self.group_name = self.slug
 
         await self.channel_layer.group_add(self.group_name, self.channel_name)
         await self.accept()
@@ -53,25 +53,20 @@ class StudioConsumer(AsyncWebsocketConsumer):
         await self.channel_layer.group_send(
             self.group_name, {"type": "device_command", "message": data}
         )
+
+        message = {"name": self.studio.name}
+        message.update({k: v for k, v in data.items() if k != "studio"})
+
         await self.channel_layer.group_send(
             "dashboard",
             {
                 "type": "state_update",
-                "message": {
-                    "slug": self.studio.slug,
-                    "name": self.studio.name,
-                    "power": data.get("power"),
-                    "mic": data.get("mic"),
-                    "record": data.get("record"),
-                    "on_air": data.get("on_air", []),
-                },
+                "message": message,
             },
         )
 
     async def apply_update(self, data):
-        await sync_to_async(update_studio_state)(
-            self.studio, data, data.get("on_air", [])
-        )
+        await sync_to_async(update_studio_state)(self.studio, data)
 
     async def device_command(self, event):
         await self.send(text_data=json.dumps(event["message"]))
