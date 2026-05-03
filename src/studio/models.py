@@ -23,7 +23,7 @@ class Studio(models.Model):
 class Station(models.Model):
     name = models.CharField(max_length=128, unique=True)
     studio = models.ForeignKey(
-        Studio, null=True, blank=True, on_delete=models.PROTECT, related_name="stations"
+        Studio, null=True, blank=True, on_delete=models.PROTECT, related_name="on_air"
     )
 
     def __str__(self):
@@ -42,7 +42,6 @@ class StudioLog(models.Model):
         ordering = ["-timestamp"]
 
     def __str__(self):
-
         return "{} - {} - {}".format(self.timestamp, self.studio, self.level)
 
     @classmethod

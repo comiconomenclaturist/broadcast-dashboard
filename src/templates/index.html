@@ -33,26 +33,26 @@
                 <div class="p-3 p-md-4 m-2 text-white rounded shadow-sm">
                     <h3>{{ studio }}</h3>
                     <span data-type="power"
-                        class="cmd-btn badge mt-3 p-2 fw-bold {{ studio.power|yesno:'bg-danger, bg-secondary' }}">
+                        class="cmd-btn badge mt-3 p-2 fw-bold {{ studio.power|yesno:'bg-danger, bg-secondary text-dark' }}">
                         POWER
                     </span>
                     <span data-type="mic"
-                        class="badge mt-3 p-2 {{ studio.mic|yesno:'bg-success, bg-secondary' }}">
+                        class="badge mt-3 p-2 {{ studio.mic|yesno:'bg-success, bg-secondary text-dark' }}">
                         MIC
                     </span>
                     <span data-type="record"
-                        class="cmd-btn badge mt-3 p-2 {{ studio.record|yesno:'bg-danger,bg-secondary' }}">
+                        class="cmd-btn badge mt-3 p-2 {{ studio.record|yesno:'bg-danger, bg-secondary text-dark' }}">
                         RECORD
                     </span>
                     <span id="{{ studio.slug }}-on-air">
-                        {% if studio.stations.all %}
-                            {% for station in studio.stations.all %}
+                        {% if studio.on_air.all %}
+                            {% for station in studio.on_air.all %}
                                 <span class="cmd-btn badge mt-3 p-2 bg-warning text-dark" data-type="on-air" data-value="{{ station.slug }}">
                                     {{ station.name|upper }}
                                 </span>
                             {% endfor %}
                         {% else %}
-                            <span class="badge cmd-btn mt-3 p-2 bg-secondary">OFF AIR</span>
+                            <span class="badge cmd-btn mt-3 p-2 bg-secondary text-dark">OFF AIR</span>
                         {% endif %}
                     </span>
                 </div>

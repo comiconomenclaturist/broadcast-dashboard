@@ -12,7 +12,7 @@ import json
 def home(request):
     site = Site.objects.get_current()
     studios = Studio.objects.all()
-    logs = StudioLog.objects.all()[:50]
+    logs = StudioLog.objects.all()[:100]
 
     return render(
         request, "index.html", {"sites": site, "studios": studios, "logs": logs}

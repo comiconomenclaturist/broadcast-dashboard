@@ -121,7 +121,7 @@ chatSocket.onmessage = function (e) {
         const tbody = document.getElementById('log-table-body');
         if (tbody) {
             tbody.insertAdjacentHTML('afterbegin', row);
-            if (tbody.rows.length > 50) tbody.deleteRow(-1);
+            if (tbody.rows.length > 100) tbody.deleteRow(-1);
         }
     }
     applyFilters();

@@ -12,7 +12,7 @@ def update_studio_state(studio, data):
         studio.record = bool(data["record"])
 
     if "on_air" in data:
-        studio.stations.clear()
+        studio.on_air.clear()
 
         for name in data["on_air"]:
             try:
