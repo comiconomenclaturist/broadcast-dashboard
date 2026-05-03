@@ -20,6 +20,7 @@ body {
 .card-body {
     max-height: 400px;
     overflow-y: auto;
+    position: relative;
 }
 
 table {
@@ -41,6 +42,7 @@ table thead {
     position: sticky;
     bottom: 0;
     height: 40px;
+    margin-top: -40px;
     pointer-events: none;
     background: linear-gradient(to bottom, rgba(0, 0, 0, 0), var(--bs-body-bg));
 }
@@ -69,5 +71,16 @@ table thead {
 }
 
 .cmd-btn {
+    transition: all 0.2s ease-in-out;
     cursor: pointer;
+    user-select: none;
+}
+
+.cmd-btn:hover {
+    filter: brightness(1.2);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.cmd-btn:active {
+    filter: brightness(0.9);
 }

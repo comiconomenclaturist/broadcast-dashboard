@@ -51,11 +51,15 @@ class StudioConsumer(AsyncWebsocketConsumer):
 
         await self.apply_update(data)
         await self.channel_layer.group_send(
-            self.group_name, {"type": "device_command", "message": data}
+            self.group_name,
+            {
+                "type": "device_command",
+                "message": data,
+                "sender_channel_name": self.channel_name,
+            },
         )
 
-        message = {"name": self.studio.name}
-        message.update({k: v for k, v in data.items() if k != "studio"})
+        message = {"name": self.studio.name, **data}
 
         await self.channel_layer.group_send(
             "dashboard",
@@ -69,4 +73,5 @@ class StudioConsumer(AsyncWebsocketConsumer):
         await sync_to_async(update_studio_state)(self.studio, data)
 
     async def device_command(self, event):
-        await self.send(text_data=json.dumps(event["message"]))
+        if self.channel_name != event.get("sender_channel_name"):
+            await self.send(text_data=json.dumps(event["message"]))

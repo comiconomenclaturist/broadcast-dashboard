@@ -41,7 +41,7 @@
                         MIC
                     </span>
                     <span data-type="record"
-                        class="cmd-btn badge mt-3 p-2 {{ studio.record|yesno:'bg-danger, bg-secondary text-dark' }}">
+                        class="badge mt-3 p-2 {{ studio.record|yesno:'bg-danger, bg-secondary text-dark' }}">
                         RECORD
                     </span>
                     <span id="{{ studio.slug }}-on-air">
@@ -52,7 +52,7 @@
                                 </span>
                             {% endfor %}
                         {% else %}
-                            <span class="badge cmd-btn mt-3 p-2 bg-secondary text-dark">OFF AIR</span>
+                            <span class="badge mt-3 p-2 bg-secondary text-dark">OFF AIR</span>
                         {% endif %}
                     </span>
                 </div>
@@ -72,14 +72,15 @@
                                 Filter <span class="caret"></span>
                             </button>
                             <ul class="dropdown-menu dropdown-menu-end dropdown-menu-dark bg-primary">
-                                <li><a class="dropdown-item filter-badge active" data-type="studio" data-value="all">ALL</a></li>
+                                <li><a class="dropdown-item filter-badge active" data-type="studio" data-value="all">All</a></li>
                                 {% for studio in studios %}
-                                    <li><a class="dropdown-item filter-badge" data-type="studio" data-value="{{ studio.slug }}">{{ studio|upper }}</a></li>
+                                    <li><a class="dropdown-item filter-badge" data-type="studio" data-value="{{ studio.slug }}">{{ studio }}</a></li>
                                 {% endfor %}
-                                <li><a class="dropdown-item filter-badge" data-type="state" data-value="power">POWER</a></li>
-                                <li><a class="dropdown-item filter-badge" data-type="state" data-value="mic">MIC</a></li>
-                                <li><a class="dropdown-item filter-badge" data-type="state" data-value="record">RECORD</a></li>
-                                <li><a class="dropdown-item filter-badge" data-type="state" data-value="on_air">ON AIR</a></li>
+                                <hr>
+                                <li><a class="dropdown-item filter-badge" data-type="state" data-value="power">Power</a></li>
+                                <li><a class="dropdown-item filter-badge" data-type="state" data-value="mic">Mic</a></li>
+                                <li><a class="dropdown-item filter-badge" data-type="state" data-value="record">Record</a></li>
+                                <li><a class="dropdown-item filter-badge" data-type="state" data-value="on_air">On Air</a></li>
                             </ul>
                         </div>
                     </div>
