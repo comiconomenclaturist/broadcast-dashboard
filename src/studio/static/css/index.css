@@ -51,6 +51,19 @@ table thead {
     line-height: 1.2;
 }
 
+#active-filters {
+    font-size: 0.75rem;
+    letter-spacing: 1px;
+}
+
+.card-header {
+    background-color: rgb(0, 47, 167) !important;
+}
+
+.card-header h5 {
+    white-space: nowrap;
+}
+
 .dropdown-menu {
     z-index: 2000 !important;
 }

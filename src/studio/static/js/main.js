@@ -4,20 +4,34 @@ const filters = {
 };
 
 function applyFilters() {
-    const studioFilter = filters['studio'] || 'all';
-    const stateFilter = filters['state'] || 'all';
+    // Update the Header Text
+    const filterDisplay = document.getElementById('active-filters');
+    let labels = [];
 
-    document.querySelectorAll(".log-row").forEach(row => {
-        const rowStudio = row.dataset.studio;
-        const rowType = row.dataset.type;
+    // Check Studio filter
+    if (filters.studio && filters.studio !== 'all') {
+        const studioName = document.querySelector(`.filter-badge[data-type="studio"][data-value="${filters.studio}"]`).innerText;
+        labels.push(studioName);
+    }
 
-        const matchesStudio = (studioFilter === 'all' || rowStudio === studioFilter);
-        const matchesState = (stateFilter === 'all' || rowType === stateFilter);
+    // Check State filter
+    if (filters.state && filters.state !== 'all') {
+        const stateName = document.querySelector(`.filter-badge[data-type="state"][data-value="${filters.state}"]`).innerText;
+        labels.push(stateName);
+    }
 
-        if (matchesStudio && matchesState) {
-            row.classList.remove('d-none');
+    // Join with a separator or clear if empty
+    filterDisplay.innerText = labels.length > 0 ? `Showing: ${labels.join(' + ')}` : '';
+
+    // Filter the Table Rows (Your existing row logic)
+    document.querySelectorAll('.log-row').forEach(row => {
+        const studioMatch = filters.studio === 'all' || row.dataset.studio === filters.studio;
+        const stateMatch = filters.state === 'all' || row.dataset.type === filters.state;
+
+        if (studioMatch && stateMatch) {
+            row.style.display = '';
         } else {
-            row.classList.add('d-none');
+            row.style.display = 'none';
         }
     });
 }
