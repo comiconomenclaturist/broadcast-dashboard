@@ -41,6 +41,7 @@ chatSocket.onmessage = function (e) {
 
             badge.classList.toggle(activeClass, isOn);
             badge.classList.toggle('bg-secondary', !isOn);
+            badge.classList.toggle('text-dark', !isOn);
 
             badge.style.opacity = "1";
             badge.classList.remove("pe-none");
@@ -63,7 +64,7 @@ chatSocket.onmessage = function (e) {
                 `<span class="badge p-2 bg-warning text-dark">${stName.toUpperCase()}</span>`
             ).join(' ');
         } else {
-            container.innerHTML = '<span class="badge p-2 bg-secondary">OFF AIR</span>';
+            container.innerHTML = '<span class="badge p-2 bg-secondary text-dark">OFF AIR</span>';
         }
     }
 
