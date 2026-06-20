@@ -5,7 +5,12 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{% block title %}{{ site.name }}{% endblock %}</title>
-    {% load bootstrap5 %}
+    {% load bootstrap5 static %}
+    <link rel="icon" type="image/x-icon" href="{% static 'img/favicon/favicon.ico' %}">
+    <link rel="apple-touch-icon" sizes="180x180" href="{% static 'img/apple-touch-icon.png' %}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{% static 'img/favicon-32x32.png' %}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{% static 'img/favicon-16x16.png' %}">
+    <link rel="manifest" href="{% static 'img/site.webmanifest' %}">
     {% bootstrap_css %}
     {% bootstrap_javascript %}
     {% block extra_css %}{% endblock %}
@@ -13,7 +18,7 @@
 
 <body>
     <div class="container-fluid mt-2">
-        <div class="row" style="background: #002FA7;">
+        <div class="row card-header">
             <div class="col-9 col-md-9 p-4 p-md-5 text-white rounded">
                 <h1 class="fs-1 fs-md-1 fw-bold">{{ request.site.name }}<h1>
                 <h1 class="fs-6 fs-md-6">Dashboard for displaying the status of the studios</h1>
